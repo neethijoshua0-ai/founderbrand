@@ -32,8 +32,8 @@ window.SITE = {
     var data={source:source,page:location.href};
     new FormData(form).forEach(function(v,k){ data[k]=v; });
     window.track('generate_lead',{form:source});
-    if(!S.FORM_ENDPOINT) return;
-    fetch(S.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)}).catch(function(){});
+    if(!S.FORM_ENDPOINT) return Promise.resolve(false);
+    return fetch(S.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)}).then(function(r){ return r.ok; }).catch(function(){ return false; });
   };
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a'); if(!a) return;
@@ -572,6 +572,7 @@ input[type=range]{accent-color:#C8F560}
 <label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--fg2)">Your LinkedIn profile URL<input type="url" name="linkedin" style="font: inherit; font-size: 16px; color: var(--fg); background: var(--bg); border: 1px solid var(--line2); border-radius: 12px; padding: 14px 16px; min-height: 48px; box-sizing: border-box"></label>
 <label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--fg2)">Link to your latest news, launch or website<input type="url" name="announcement" style="font: inherit; font-size: 16px; color: var(--fg); background: var(--bg); border: 1px solid var(--line2); border-radius: 12px; padding: 14px 16px; min-height: 48px; box-sizing: border-box"></label>
 <button class="btn" type="submit" :style="`font: inherit; margin-top: 6px; background: ${accent}; color: #0A0A0A; border: 0; font-weight: 600; font-size: 17px; padding: 18px; border-radius: 999px; cursor: pointer; min-height: 52px`">Write my 2 free posts</button>
+<p v-if="formErr" role="alert" style="margin: 0; font-size: 14px; color: #FF8A7A; text-align: center">Something went wrong sending that. Please try again, or book a call instead.</p>
 <p style="margin: 0; font-size: 13px; color: var(--muted2); text-align: center">No call needed to get them. No spam.</p>
 </form>
 </template>
@@ -579,7 +580,7 @@ input[type=range]{accent-color:#C8F560}
 <div class="fadein" style="text-align: center; padding: 40px 10px">
 <div :style="`width: 72px; height: 72px; margin: 0 auto 24px; border-radius: 50%; background: ${accent}; display: flex; align-items: center; justify-content: center`"><svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5 9-10"></path></svg></div>
 <h3 style="margin: 0 0 10px; font-family: 'Space Grotesk', sans-serif; font-size: 30px">You are in.</h3>
-<p style="margin: 0; color: var(--muted); font-size: 17px; line-height: 1.6">Your 2 posts land in your inbox within 48 hours.</p>
+<p style="margin: 0; color: var(--muted); font-size: 17px; line-height: 1.6">Your 2 posts land in your inbox within 24 hours.</p>
 </div>
 </template>
 </div>
@@ -623,14 +624,15 @@ input[type=range]{accent-color:#C8F560}
 <template v-if="exitNotSent">
 <p style="margin: 0 0 10px; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #FFB86B">Before you go</p>
 <h3 style="margin: 0 0 12px; font-family: 'Space Grotesk', sans-serif; font-size: 30px; line-height: 1.1">Take 2 free posts with you.</h3>
-<p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: var(--muted)">Drop your email and LinkedIn. We write 2 posts in your voice and send them within 48 hours. No call, no catch.</p>
+<p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: var(--muted)">Drop your email and LinkedIn. We write 2 posts in your voice and send them within 24 hours. No call, no catch.</p>
 <form @submit="onExitSubmit" style="display: flex; flex-direction: column; gap: 12px">
 <label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--fg2)">Work email<input type="email" name="email" required="required" style="font: inherit; font-size: 16px; color: var(--fg); background: var(--bg); border: 1px solid var(--line2); border-radius: 12px; padding: 14px 16px; min-height: 48px; box-sizing: border-box; width: 100%"></label>
 <label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--fg2)">LinkedIn profile URL<input type="url" name="linkedin" style="font: inherit; font-size: 16px; color: var(--fg); background: var(--bg); border: 1px solid var(--line2); border-radius: 12px; padding: 14px 16px; min-height: 48px; box-sizing: border-box; width: 100%"></label>
+<p v-if="exitErr" role="alert" style="margin: 0; font-size: 14px; color: #FF8A7A">Something went wrong sending that. Please try again.</p>
 <button class="btn" type="submit" :style="`font: inherit; margin-top: 6px; background: ${accent}; color: #0A0A0A; border: 0; font-weight: 600; font-size: 16px; padding: 16px; border-radius: 999px; cursor: pointer; min-height: 50px`">Send me my 2 posts</button>
 </form>
 </template>
-<template v-if="exitSent"><div style="text-align: center; padding: 20px 0"><h3 style="margin: 0 0 10px; font-family: 'Space Grotesk', sans-serif; font-size: 28px">Done. Check your inbox in 48 hours.</h3><p style="margin: 0; color: var(--muted)">Want to move faster? <a :href="bookingUrl">Book a 15 minute call</a>.</p></div></template>
+<template v-if="exitSent"><div style="text-align: center; padding: 20px 0"><h3 style="margin: 0 0 10px; font-family: 'Space Grotesk', sans-serif; font-size: 28px">Done. Check your inbox in 24 hours.</h3><p style="margin: 0; color: var(--muted)">Want to move faster? <a :href="bookingUrl">Book a 15 minute call</a>.</p></div></template>
 </div>
 </div>
 </template>
@@ -799,7 +801,8 @@ exitSent: !!this.state.exitSent,
 exitNotSent: !this.state.exitSent,
 onLeave: (e) => { if (e.clientY <= 0 && !this.state.exitSeen) this.setState({ exitOpen: true, exitSeen: true }); },
 closeExit: () => this.setState({ exitOpen: false }),
-onExitSubmit: (e) => { e.preventDefault(); window.fbSend(e.target, 'Exit popup'); this.setState({ exitSent: true }); },
+onExitSubmit: (e) => { e.preventDefault(); this.setState({ exitErr: false }); window.fbSend(e.target, 'Exit popup').then((ok) => this.setState(ok ? { exitSent: true } : { exitErr: true })); },
+exitErr: !!this.state.exitErr,
 pains, stack, bonuses, checks, score: String(score), scoreColor, barStyle, verdict, verdictText,
 mmName: 'Multimodal.dev',
 mmDesc: 'Agentic AI for financial institutions',
@@ -820,7 +823,8 @@ onDeal: (e) => this.setState({ deal: Number(e.target.value) }),
 faqs,
 sent: this.state.sent,
 notSent: !this.state.sent,
-onSubmit: (e) => { e.preventDefault(); window.fbSend(e.target, 'Free posts form'); this.setState({ sent: true }); }
+onSubmit: (e) => { e.preventDefault(); this.setState({ formErr: false }); window.fbSend(e.target, 'Free posts form').then((ok) => this.setState(ok ? { sent: true } : { formErr: true })); },
+formErr: !!this.state.formErr
 };
 }
 }
