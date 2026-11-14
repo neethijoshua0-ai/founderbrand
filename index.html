@@ -735,7 +735,7 @@ const total = stackData.concat(bonusData).reduce((t, r) => t + r[2], 0);
 const stack = stackData.map(([item, note, v]) => ({ item, note, value: fmt(v) }));
 const bonuses = bonusData.map(([item, note, v]) => ({ item, note, value: fmt(v) }));
 return {
-bookingUrl: this.props.bookingUrl ?? 'https://calendly.com/your-link',
+bookingUrl: this.props.bookingUrl ?? 'https://cal.com/joshua-n-b74zpx/strategy-call',
 spotsLeft: this.props.spotsLeft ?? '2',
 themeClass: theme === 'light' ? 't-light' : 't-dark',
 isDark: theme !== 'light', isLight: theme === 'light',
@@ -786,8 +786,8 @@ onSubmit: (e) => { e.preventDefault(); this.setState({ sent: true }); }
 }
 
 (function(){
-  var comp = new Component({"brand": "Founder Brand", "accent": "#C8F560", "spots": "3", "spotsLeft": "2", "theme": "dark", "price": "$2,500", "bookingUrl": "https://calendly.com/your-link"});
-  comp.props = {"brand": "Founder Brand", "accent": "#C8F560", "spots": "3", "spotsLeft": "2", "theme": "dark", "price": "$2,500", "bookingUrl": "https://calendly.com/your-link"};
+  var comp = new Component({"brand": "Founder Brand", "accent": "#C8F560", "spots": "3", "spotsLeft": "2", "theme": "dark", "price": "$2,500", "bookingUrl": "https://cal.com/joshua-n-b74zpx/strategy-call"});
+  comp.props = {"brand": "Founder Brand", "accent": "#C8F560", "spots": "3", "spotsLeft": "2", "theme": "dark", "price": "$2,500", "bookingUrl": "https://cal.com/joshua-n-b74zpx/strategy-call"};
   if (!comp.state) comp.state = {};
   var ctx = Vue.reactive({});
   function refresh(){ Object.assign(ctx, comp.renderVals()); }
